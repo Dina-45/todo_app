@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Your Tasks</h1>
+    <form method="GET" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="Search tasks...">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>File</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ 'Done' if task.status else 'Not Done' }}</td>
+                    <td>
+                        {% if task.file_path %}
+                            {% set file_extension = task.file_path.split('.')[-1].lower() %}
+                            {% if file_extension in ['jpg', 'jpeg', 'png', 'gif'] %}
+
+                                <img src="{{ url_for('tasks.uploaded_file', filename=task.file_path.split('/')[-1]) }}" alt="Task Image" style="max-width: 100px; max-height: 100px;">
+                                <br>
+                            {% endif %}
+
+                            <a href="{{ url_for('tasks.download_file', filename=task.file_path.split('/')[-1]) }}">Download</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form method="POST" action="{{ url_for('tasks.delete_task', task_id=task.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
