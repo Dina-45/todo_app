@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1>Register</h1>
-    <form method="POST">
-        <div class="mb-3">
-            <label class="form-label">Username:</label>
-            <input type="text" name="username" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Password:</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
+    <div class="form-container">
+        <h1>Регистрация</h1>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">  <!-- Добавляем CSRF-токен -->
+            <div class="mb-3">
+                <label class="form-label">Имя пользователя:</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Пароль:</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
+    </div>
 {% endblock %}
