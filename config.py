@@ -11,3 +11,4 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'app', 'uploads')
     SESSION_PERMANENT = True
     PERMANENT_SESSION_LIFETIME = 1800
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
