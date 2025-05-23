@@ -1,23 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>{{ 'Edit Task' if task else 'New Task' }}</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">Title:</label>
-            <input type="text" name="title" class="form-control" value="{{ task.title if task else request.form.title or '' }}" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Description:</label>
-            <textarea name="description" class="form-control">{{ task.description if task else request.form.description or '' }}</textarea>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" name="status" class="form-check-input" {% if task and task.status %}checked{% endif %}>
-            <label class="form-check-label">Done</label>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">File:</label>
-            <input type="file" name="file" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
+    <div class="card shadow-sm p-4 mt-4 mx-auto" style="max-width: 500px;">
+        <h1 class="mb-4">{{ 'Edit Task' if task else 'New Task' }}</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% if csrf_token %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-primary">Title:</label>
+                <input type="text" name="title" class="form-control" value="{{ task.title if task else request.form.title or '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-primary">Description:</label>
+                <textarea name="description" class="form-control">{{ task.description if task else request.form.description or '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-primary">Category:</label>
+                <select name="category" class="form-select">
+                    <option value="">Автоматически</option>
+                    {% for cat in ['Учёба', 'Работа', 'Личные цели', 'Медицина и здоровье', 'Бытовые дела'] %}
+                        <option value="{{ cat }}" {% if task and task.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="status" class="form-check-input" {% if task and task.status %}checked{% endif %}>
+                <label class="form-check-label">Done</label>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-primary">File:</label>
+                <input type="file" name="file" class="form-control">
+                {% if task and task.file_path %}
+                    <p class="mt-2">Current file: <a href="{{ url_for('tasks.uploaded_file', filename=task.file_path.split('/')[-1]) }}" class="text-primary">{{ task.file_path.split('/')[-1] }}</a></p>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="submit-btn">Save</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function(e) {
+            this.disabled = true;
+            this.form.submit();
+        });
+    </script>
 {% endblock %}
