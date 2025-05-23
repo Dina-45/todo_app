@@ -1,7 +1,7 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, FileField, SubmitField
+from wtforms import StringField, TextAreaField, FileField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 
 class User(db.Model):
@@ -23,9 +23,11 @@ class Task(db.Model):
     status = db.Column(db.Boolean, default=False)
     file_path = db.Column(db.String(200))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category = db.Column(db.String(50), nullable=True)  # Поле для категории
 
 class TaskForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = TextAreaField('Description')
+    category = SelectField('Category', choices=[('', 'Автоматически'), ('Учёба', 'Учёба'), ('Работа', 'Работа'), ('Личное', 'Личное'), ('Здоровье', 'Здоровье'), ('Дом', 'Дом')], default='')
     file = FileField('File')
     submit = SubmitField('Save')
