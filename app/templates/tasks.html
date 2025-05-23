@@ -1,48 +1,78 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Your Tasks</h1>
-    <form method="GET" class="mb-3">
-        <div class="input-group">
-            <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="Search tasks...">
-            <button type="submit" class="btn btn-primary">Search</button>
+    <h1 class="mb-4">Мои задачи</h1>
+    <form method="GET" class="mb-4" onsubmit="return validateSearchForm()">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по названию или описанию" value="{{ search }}" minlength="3" id="searchInput">
+                <div id="searchError" class="text-danger" style="display: none;">Запрос должен содержать минимум 3 символа.</div>
+            </div>
+            <div class="col-md-4">
+                <select name="category" class="form-select">
+                    <option value="">Все категории</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
+            </div>
         </div>
     </form>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>File</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for task in tasks %}
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered shadow-sm">
+            <thead class="table-primary text-center">
                 <tr>
-                    <td>{{ task.title }}</td>
-                    <td>{{ task.description }}</td>
-                    <td>{{ 'Done' if task.status else 'Not Done' }}</td>
-                    <td>
-                        {% if task.file_path %}
-                            {% set file_extension = task.file_path.split('.')[-1].lower() %}
-                            {% if file_extension in ['jpg', 'jpeg', 'png', 'gif'] %}
-
-                                <img src="{{ url_for('tasks.uploaded_file', filename=task.file_path.split('/')[-1]) }}" alt="Task Image" style="max-width: 100px; max-height: 100px;">
-                                <br>
-                            {% endif %}
-
-                            <a href="{{ url_for('tasks.download_file', filename=task.file_path.split('/')[-1]) }}">Download</a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form method="POST" action="{{ url_for('tasks.delete_task', task_id=task.id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                    <th>Статус</th>
+                    <th>Файл</th>
+                    <th>Действия</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr class="{% if task.status %}table-success{% endif %}">
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>
+                            <span class="badge {% if task.category == 'Учёба' %}bg-success{% elif task.category == 'Работа' %}bg-primary{% elif task.category == 'Личные цели' %}bg-warning text-dark{% elif task.category == 'Медицина и здоровье' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ task.category }}
+                            </span>
+                        </td>
+                        <td>{{ 'Выполнено' if task.status else 'Не выполнено' }}</td>
+                        <td>
+                            {% if task.file_path %}
+                                <a href="{{ url_for('tasks.download_file', filename=task.file_path.split('/')[-1]) }}" class="btn btn-sm btn-outline-primary">Скачать</a>
+                            {% else %}
+                                Нет файла
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}" class="btn btn-sm btn-primary">Редактировать</a>
+                            <form action="{{ url_for('tasks.delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить задачу?')">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function validateSearchForm() {
+            const searchInput = document.getElementById('searchInput').value;
+            const searchError = document.getElementById('searchError');
+            if (searchInput.length > 0 && searchInput.length < 3) {
+                searchError.style.display = 'block';
+                return false;
+            }
+            searchError.style.display = 'none';
+            return true;
+        }
+    </script>
 {% endblock %}
